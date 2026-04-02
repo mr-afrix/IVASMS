@@ -2,6 +2,5 @@ __pycache__/
 *.pyc
 *.pyo
 .env
-*.json
-!requirements.txt
-.DS_Store
+processed_sms_ids.json
+chat_ids.json
