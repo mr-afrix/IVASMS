@@ -22,25 +22,25 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-BOT_TOKEN     = os.environ["BOT_TOKEN"]
-IVAS_EMAIL    = os.environ["IVAS_EMAIL"]
-IVAS_PASSWORD = os.environ["IVAS_PASSWORD"]
+# ── Credentials ── env vars override, hardcoded values are the fallback
+BOT_TOKEN     = os.environ.get("BOT_TOKEN",      "8724296336:AAEJHu1BSrF91rdrECfOva09eQBs1fpgwfo")
+IVAS_EMAIL    = os.environ.get("IVAS_EMAIL",      "tawandamahachi07@gmail.com")
+IVAS_PASSWORD = os.environ.get("IVAS_PASSWORD",   "mahachi2007")
+ADMIN_IDS     = [os.environ.get("ADMIN_ID",       "8339856952")]
+INITIAL_CHATS = [os.environ.get("INITIAL_CHAT",   "-1003854641278")]
 
-ADMIN_IDS     = [os.environ.get("ADMIN_ID", "8339856952")]
-INITIAL_CHATS = [os.environ.get("INITIAL_CHAT", "-1003854641278")]
+BASE         = "https://www.ivasms.com"
+LOGIN_URL    = f"{BASE}/login"
+SMS_ENDPOINT = f"{BASE}/portal/sms/received/getsms"
+NUMBERS_URL  = f"{BASE}/portal/sms/received/getsms/number"
+SMS_DETAIL   = f"{BASE}/portal/sms/received/getsms/number/sms"
+PORTAL_URL   = f"{BASE}/portal/sms/received"
 
-BASE          = "https://www.ivasms.com"
-LOGIN_URL     = f"{BASE}/login"
-SMS_ENDPOINT  = f"{BASE}/portal/sms/received/getsms"
-NUMBERS_URL   = f"{BASE}/portal/sms/received/getsms/number"
-SMS_DETAIL    = f"{BASE}/portal/sms/received/getsms/number/sms"
-PORTAL_URL    = f"{BASE}/portal/sms/received"
+DATA_DIR   = "/data" if os.path.isdir("/data") else "."
+STATE_FILE = os.path.join(DATA_DIR, "seen.json")
+CHATS_FILE = os.path.join(DATA_DIR, "chats.json")
 
-DATA_DIR      = "/data" if os.path.isdir("/data") else "."
-STATE_FILE    = os.path.join(DATA_DIR, "seen.json")
-CHATS_FILE    = os.path.join(DATA_DIR, "chats.json")
-
-POLL_SECS     = 30
+POLL_SECS  = 30
 
 BUTTONS = InlineKeyboardMarkup([
     [InlineKeyboardButton("📱 NUMBER CHANNEL", url="https://t.me/mrafrixtech")],
@@ -52,31 +52,31 @@ BUTTONS = InlineKeyboardMarkup([
 COUNTRY_FLAGS = {
     "Afghanistan":"🇦🇫","Albania":"🇦🇱","Algeria":"🇩🇿","Angola":"🇦🇴","Argentina":"🇦🇷",
     "Armenia":"🇦🇲","Australia":"🇦🇺","Austria":"🇦🇹","Azerbaijan":"🇦🇿","Bahrain":"🇧🇭",
-    "Bangladesh":"🇧🇩","Belarus":"🇧🇾","Belgium":"🇧🇪","Benin":"🇧🇯","Bhutan":"🇧🇹",
-    "Bolivia":"🇧🇴","Brazil":"🇧🇷","Bulgaria":"🇧🇬","Burkina Faso":"🇧🇫","Cambodia":"🇰🇭",
-    "Cameroon":"🇨🇲","Canada":"🇨🇦","Chad":"🇹🇩","Chile":"🇨🇱","China":"🇨🇳",
-    "Colombia":"🇨🇴","Congo":"🇨🇬","Croatia":"🇭🇷","Cuba":"🇨🇺","Cyprus":"🇨🇾",
-    "Czech Republic":"🇨🇿","Denmark":"🇩🇰","Egypt":"🇪🇬","Estonia":"🇪🇪","Ethiopia":"🇪🇹",
-    "Finland":"🇫🇮","France":"🇫🇷","Gabon":"🇬🇦","Gambia":"🇬🇲","Georgia":"🇬🇪",
-    "Germany":"🇩🇪","Ghana":"🇬🇭","Greece":"🇬🇷","Guatemala":"🇬🇹","Guinea":"🇬🇳",
-    "Haiti":"🇭🇹","Honduras":"🇭🇳","Hong Kong":"🇭🇰","Hungary":"🇭🇺","Iceland":"🇮🇸",
-    "India":"🇮🇳","Indonesia":"🇮🇩","Iran":"🇮🇷","Iraq":"🇮🇶","Ireland":"🇮🇪",
-    "Israel":"🇮🇱","Italy":"🇮🇹","Ivory Coast":"🇨🇮","IVORY COAST":"🇨🇮","Jamaica":"🇯🇲",
-    "Japan":"🇯🇵","Jordan":"🇯🇴","Kazakhstan":"🇰🇿","Kenya":"🇰🇪","Kuwait":"🇰🇼",
-    "Kyrgyzstan":"🇰🇬","Laos":"🇱🇦","Latvia":"🇱🇻","Lebanon":"🇱🇧","Liberia":"🇱🇷",
-    "Libya":"🇱🇾","Lithuania":"🇱🇹","Luxembourg":"🇱🇺","Madagascar":"🇲🇬","Malaysia":"🇲🇾",
-    "Mali":"🇲🇱","Malta":"🇲🇹","Mexico":"🇲🇽","Moldova":"🇲🇩","Monaco":"🇲🇨",
-    "Mongolia":"🇲🇳","Montenegro":"🇲🇪","Morocco":"🇲🇦","Mozambique":"🇲🇿","Myanmar":"🇲🇲",
-    "Namibia":"🇳🇦","Nepal":"🇳🇵","Netherlands":"🇳🇱","New Zealand":"🇳🇿","Nicaragua":"🇳🇮",
-    "Niger":"🇳🇪","Nigeria":"🇳🇬","North Korea":"🇰🇵","North Macedonia":"🇲🇰","Norway":"🇳🇴",
-    "Oman":"🇴🇲","Pakistan":"🇵🇰","Panama":"🇵🇦","Paraguay":"🇵🇾","Peru":"🇵🇪",
-    "Philippines":"🇵🇭","Poland":"🇵🇱","Portugal":"🇵🇹","Qatar":"🇶🇦","Romania":"🇷🇴",
-    "Russia":"🇷🇺","Rwanda":"🇷🇼","Saudi Arabia":"🇸🇦","Senegal":"🇸🇳","Serbia":"🇷🇸",
-    "Sierra Leone":"🇸🇱","Singapore":"🇸🇬","Slovakia":"🇸🇰","Slovenia":"🇸🇮","Somalia":"🇸🇴",
-    "South Africa":"🇿🇦","South Korea":"🇰🇷","Spain":"🇪🇸","Sri Lanka":"🇱🇰","Sudan":"🇸🇩",
-    "Sweden":"🇸🇪","Switzerland":"🇨🇭","Syria":"🇸🇾","Taiwan":"🇹🇼","Tajikistan":"🇹🇯",
-    "Tanzania":"🇹🇿","Thailand":"🇹🇭","Togo":"🇹🇬","TOGO":"🇹🇬","Tunisia":"🇹🇳",
-    "Turkey":"🇹🇷","Turkmenistan":"🇹🇲","Uganda":"🇺🇬","Ukraine":"🇺🇦",
+    "Bangladesh":"🇧🇩","Belarus":"🇧🇾","Belgium":"🇧🇪","Benin":"🇧🇯","Bolivia":"🇧🇴",
+    "Brazil":"🇧🇷","Bulgaria":"🇧🇬","Cambodia":"🇰🇭","Cameroon":"🇨🇲","Canada":"🇨🇦",
+    "Chad":"🇹🇩","Chile":"🇨🇱","China":"🇨🇳","Colombia":"🇨🇴","Congo":"🇨🇬",
+    "Croatia":"🇭🇷","Cuba":"🇨🇺","Cyprus":"🇨🇾","Czech Republic":"🇨🇿","Denmark":"🇩🇰",
+    "Egypt":"🇪🇬","Estonia":"🇪🇪","Ethiopia":"🇪🇹","Finland":"🇫🇮","France":"🇫🇷",
+    "Gabon":"🇬🇦","Gambia":"🇬🇲","Georgia":"🇬🇪","Germany":"🇩🇪","Ghana":"🇬🇭",
+    "Greece":"🇬🇷","Guatemala":"🇬🇹","Guinea":"🇬🇳","Haiti":"🇭🇹","Honduras":"🇭🇳",
+    "Hong Kong":"🇭🇰","Hungary":"🇭🇺","Iceland":"🇮🇸","India":"🇮🇳","Indonesia":"🇮🇩",
+    "Iran":"🇮🇷","Iraq":"🇮🇶","Ireland":"🇮🇪","Israel":"🇮🇱","Italy":"🇮🇹",
+    "Ivory Coast":"🇨🇮","IVORY COAST":"🇨🇮","Jamaica":"🇯🇲","Japan":"🇯🇵","Jordan":"🇯🇴",
+    "Kazakhstan":"🇰🇿","Kenya":"🇰🇪","Kuwait":"🇰🇼","Kyrgyzstan":"🇰🇬","Laos":"🇱🇦",
+    "Latvia":"🇱🇻","Lebanon":"🇱🇧","Liberia":"🇱🇷","Libya":"🇱🇾","Lithuania":"🇱🇹",
+    "Luxembourg":"🇱🇺","Madagascar":"🇲🇬","Malaysia":"🇲🇾","Mali":"🇲🇱","Malta":"🇲🇹",
+    "Mexico":"🇲🇽","Moldova":"🇲🇩","Monaco":"🇲🇨","Mongolia":"🇲🇳","Montenegro":"🇲🇪",
+    "Morocco":"🇲🇦","Mozambique":"🇲🇿","Myanmar":"🇲🇲","Namibia":"🇳🇦","Nepal":"🇳🇵",
+    "Netherlands":"🇳🇱","New Zealand":"🇳🇿","Nicaragua":"🇳🇮","Niger":"🇳🇪","Nigeria":"🇳🇬",
+    "North Korea":"🇰🇵","North Macedonia":"🇲🇰","Norway":"🇳🇴","Oman":"🇴🇲","Pakistan":"🇵🇰",
+    "Panama":"🇵🇦","Paraguay":"🇵🇾","Peru":"🇵🇪","Philippines":"🇵🇭","Poland":"🇵🇱",
+    "Portugal":"🇵🇹","Qatar":"🇶🇦","Romania":"🇷🇴","Russia":"🇷🇺","Rwanda":"🇷🇼",
+    "Saudi Arabia":"🇸🇦","Senegal":"🇸🇳","Serbia":"🇷🇸","Sierra Leone":"🇸🇱",
+    "Singapore":"🇸🇬","Slovakia":"🇸🇰","Slovenia":"🇸🇮","Somalia":"🇸🇴",
+    "South Africa":"🇿🇦","South Korea":"🇰🇷","Spain":"🇪🇸","Sri Lanka":"🇱🇰",
+    "Sudan":"🇸🇩","Sweden":"🇸🇪","Switzerland":"🇨🇭","Syria":"🇸🇾","Taiwan":"🇹🇼",
+    "Tajikistan":"🇹🇯","Tanzania":"🇹🇿","Thailand":"🇹🇭","Togo":"🇹🇬","TOGO":"🇹🇬",
+    "Tunisia":"🇹🇳","Turkey":"🇹🇷","Turkmenistan":"🇹🇲","Uganda":"🇺🇬","Ukraine":"🇺🇦",
     "United Arab Emirates":"🇦🇪","United Kingdom":"🇬🇧","United States":"🇺🇸",
     "Uruguay":"🇺🇾","Uzbekistan":"🇺🇿","Venezuela":"🇻🇪","Vietnam":"🇻🇳",
     "Yemen":"🇾🇪","Zambia":"🇿🇲","Zimbabwe":"🇿🇼",
@@ -107,25 +107,26 @@ SERVICE_KEYWORDS = {
 
 SERVICE_EMOJIS = {
     "Telegram":"📩","WhatsApp":"🟢","Facebook":"📘","Instagram":"📸","Messenger":"💬",
-    "Google":"🔍","Gmail":"✉️","YouTube":"▶️","Twitter":"🐦","TikTok":"🎵",
-    "Snapchat":"👻","Amazon":"🛒","eBay":"📦","AliExpress":"📦","Alibaba":"🏭",
-    "Flipkart":"📦","Microsoft":"🪟","Outlook":"📧","Skype":"📞","Netflix":"🎬",
-    "Spotify":"🎶","Apple":"🍏","iCloud":"☁️","PayPal":"💰","Stripe":"💳",
-    "Cash App":"💵","Venmo":"💸","Zelle":"🏦","Wise":"🌐","Binance":"🪙",
-    "Coinbase":"🪙","KuCoin":"🪙","Bybit":"📈","OKX":"🟠","Huobi":"🔥",
-    "Kraken":"🐙","MetaMask":"🦊","Discord":"🗨️","Steam":"🎮","Epic Games":"🕹️",
-    "PlayStation":"🎮","Xbox":"🎮","Twitch":"📺","Reddit":"👽","Yahoo":"🟣",
-    "ProtonMail":"🔐","LinkedIn":"💼","Indeed":"📋","Upwork":"🧑‍💻","Fiverr":"💻",
-    "Airbnb":"🏠","Booking.com":"🛏️","Uber":"🚗","Bolt":"🚖","Careem":"🚗",
-    "Swiggy":"🍔","Zomato":"🍽️","Foodpanda":"🍱","McDonald's":"🍟","KFC":"🍗",
-    "Shein":"👗","OnlyFans":"🔞","Tinder":"🔥","Bumble":"🐝","Signal":"🔐",
-    "Viber":"📞","Line":"💬","WeChat":"💬","VK":"🌐","Unknown":"❓",
+    "Google":"🔍","YouTube":"▶️","Twitter":"🐦","TikTok":"🎵","Snapchat":"👻",
+    "Amazon":"🛒","eBay":"📦","AliExpress":"📦","Alibaba":"🏭","Flipkart":"📦",
+    "Microsoft":"🪟","Outlook":"📧","Skype":"📞","Netflix":"🎬","Spotify":"🎶",
+    "Apple":"🍏","PayPal":"💰","Stripe":"💳","Cash App":"💵","Venmo":"💸",
+    "Zelle":"🏦","Wise":"🌐","Binance":"🪙","Coinbase":"🪙","KuCoin":"🪙",
+    "Bybit":"📈","OKX":"🟠","Huobi":"🔥","Kraken":"🐙","MetaMask":"🦊",
+    "Discord":"🗨️","Steam":"🎮","Epic Games":"🕹️","PlayStation":"🎮","Xbox":"🎮",
+    "Twitch":"📺","Reddit":"👽","Yahoo":"🟣","ProtonMail":"🔐","LinkedIn":"💼",
+    "Indeed":"📋","Upwork":"🧑‍💻","Fiverr":"💻","Airbnb":"🏠","Booking.com":"🛏️",
+    "Uber":"🚗","Bolt":"🚖","Careem":"🚗","Swiggy":"🍔","Zomato":"🍽️",
+    "Foodpanda":"🍱","McDonald's":"🍟","KFC":"🍗","Shein":"👗","OnlyFans":"🔞",
+    "Tinder":"🔥","Bumble":"🐝","Signal":"🔐","Viber":"📞","Line":"💬",
+    "WeChat":"💬","VK":"🌐","Unknown":"❓",
 }
 
 _pw:      Playwright     | None = None
 _context: BrowserContext | None = None
-_csrf:    str = ""
-_fail_count: int = 0
+_csrf:    str  = ""
+_logged_in: bool = False
+_fail_count: int  = 0
 
 
 def _esc(text: str) -> str:
@@ -195,6 +196,8 @@ async def _launch_browser() -> None:
             "--disable-dev-shm-usage",
             "--disable-blink-features=AutomationControlled",
             "--disable-infobars",
+            "--disable-extensions",
+            "--single-process",
         ],
         ignore_https_errors=True,
         java_script_enabled=True,
@@ -220,118 +223,147 @@ async def _launch_browser() -> None:
 async def _close_browser() -> None:
     global _pw, _context
     if _context:
-        await _context.close()
+        try:
+            await _context.close()
+        except Exception:
+            pass
         _context = None
     if _pw:
-        await _pw.stop()
+        try:
+            await _pw.stop()
+        except Exception:
+            pass
         _pw = None
 
 
 async def do_login() -> bool:
-    global _csrf, _fail_count
+    global _csrf, _fail_count, _logged_in
+
     if _context is None:
         await _launch_browser()
 
-    log.info("Logging in …")
+    log.info("Logging in to iVAS SMS …")
     page = await _context.new_page()
-    try:
-        await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=45000)
 
-        # Wait out any Cloudflare challenge (up to 20s)
-        for _ in range(4):
+    try:
+        await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=60000)
+
+        # Wait out Cloudflare challenge — up to 30 seconds
+        for i in range(6):
             if await page.query_selector('input[name="email"]'):
                 break
-            log.info("  CF challenge in progress, waiting …")
+            log.info("  CF challenge detected, waiting … (%d/6)", i + 1)
             await asyncio.sleep(5)
 
         email_field = await page.query_selector('input[name="email"]')
         if not email_field:
-            log.warning("  Login form not found after CF wait.")
+            log.warning("  Login form not found — Cloudflare blocked us.")
             _fail_count += 1
+            _logged_in = False
             return False
 
-        await page.fill('input[name="email"]', IVAS_EMAIL)
-        await asyncio.sleep(0.6)
-        await page.fill('input[name="password"]', IVAS_PASSWORD)
+        # Type like a human
+        await page.fill('input[name="email"]', "")
+        await page.type('input[name="email"]', IVAS_EMAIL, delay=80)
+        await asyncio.sleep(0.5)
+        await page.fill('input[name="password"]', "")
+        await page.type('input[name="password"]', IVAS_PASSWORD, delay=60)
         await asyncio.sleep(0.4)
         await page.click('button[type="submit"]')
 
         try:
             await page.wait_for_url(
                 lambda url: "login" not in url,
-                timeout=20000,
+                timeout=25000,
             )
         except Exception:
-            log.warning("  Did not redirect away from login page.")
+            body = await page.inner_text("body")
+            if "password" in body.lower() or "invalid" in body.lower():
+                log.error("  Wrong credentials — check IVAS_EMAIL / IVAS_PASSWORD.")
+            else:
+                log.warning("  Login redirect timed out.")
             _fail_count += 1
+            _logged_in = False
             return False
 
-        meta = await page.query_selector('meta[name="csrf-token"]')
-        if meta:
-            _csrf = await meta.get_attribute("content") or ""
+        # Grab CSRF from dashboard
+        token = await page.evaluate(
+            'document.querySelector(\'meta[name="csrf-token"]\')?.content || ""'
+        )
+        if token:
+            _csrf = token
 
-        if not _csrf:
-            _csrf = await page.evaluate(
-                'document.querySelector(\'meta[name="csrf-token"]\')?.content || ""'
-            )
-
-        log.info("  Logged in. CSRF: %s…", _csrf[:12])
+        log.info("  Login successful! CSRF: %s…", _csrf[:12] if _csrf else "none")
         _fail_count = 0
+        _logged_in = True
         return True
 
     except Exception as e:
-        log.error("  Login error: %s", e)
+        log.error("  Login exception: %s", e)
         _fail_count += 1
+        _logged_in = False
         return False
     finally:
         await page.close()
 
 
-async def _get_csrf() -> str:
-    if _csrf:
-        return _csrf
-    # Refresh from portal
+async def _refresh_csrf() -> str:
+    global _csrf
     if _context is None:
         return ""
     page = await _context.new_page()
     try:
         await page.goto(PORTAL_URL, wait_until="domcontentloaded", timeout=30000)
         if "login" in page.url:
-            await page.close()
+            _csrf = ""
             return ""
         token = await page.evaluate(
             'document.querySelector(\'meta[name="csrf-token"]\')?.content || ""'
         )
-        return token
+        if token:
+            _csrf = token
+        return _csrf
     except Exception:
-        return ""
+        return _csrf
     finally:
         await page.close()
 
 
 async def fetch_sms() -> list:
     global _csrf
-    if _context is None:
+
+    if _context is None or not _logged_in:
         return []
 
-    token = await _get_csrf()
+    token = _csrf or await _refresh_csrf()
     if not token:
+        log.warning("No CSRF token — session expired, will re-login next cycle.")
         return []
 
-    today      = datetime.utcnow()
-    from_str   = (today - timedelta(days=1)).strftime("%m/%d/%Y")
-    to_str     = today.strftime("%m/%d/%Y")
-    base_form  = {"from": from_str, "to": to_str, "_token": token}
+    today    = datetime.utcnow()
+    from_str = (today - timedelta(days=1)).strftime("%m/%d/%Y")
+    to_str   = today.strftime("%m/%d/%Y")
 
     try:
-        resp = await _context.request.post(SMS_ENDPOINT, form=base_form)
+        resp = await _context.request.post(
+            SMS_ENDPOINT,
+            form={"from": from_str, "to": to_str, "_token": token},
+        )
+
         if resp.status == 419:
-            log.warning("CSRF expired, re-logging in …")
+            log.warning("CSRF expired (419), refreshing …")
             _csrf = ""
-            await do_login()
+            await _refresh_csrf()
             return []
+
+        if resp.status == 302 or "login" in resp.url:
+            log.warning("Session expired — need re-login.")
+            global _logged_in
+            _logged_in = False
+            return []
+
         if not resp.ok:
-            log.warning("SMS endpoint %s", resp.status)
+            log.warning("SMS endpoint returned %d", resp.status)
             return []
 
         soup       = BeautifulSoup(await resp.text(), "html.parser")
@@ -347,48 +379,63 @@ async def fetch_sms() -> list:
 
         messages = []
         for gid in group_ids:
-            num_resp = await _context.request.post(
-                NUMBERS_URL,
-                form={"start": from_str, "end": to_str, "range": gid, "_token": token},
-            )
-            if not num_resp.ok:
-                continue
-            num_soup    = BeautifulSoup(await num_resp.text(), "html.parser")
-            number_divs = num_soup.select("div[onclick*='getDetialsNumber']")
-
-            for ndiv in number_divs:
-                phone    = ndiv.text.strip()
-                sms_resp = await _context.request.post(
-                    SMS_DETAIL,
-                    form={
-                        "start": from_str, "end": to_str,
-                        "Number": phone, "Range": gid, "_token": token,
-                    },
+            try:
+                num_resp = await _context.request.post(
+                    NUMBERS_URL,
+                    form={"start": from_str, "end": to_str, "range": gid, "_token": token},
                 )
-                if not sms_resp.ok:
+                if not num_resp.ok:
                     continue
-                sms_soup  = BeautifulSoup(await sms_resp.text(), "html.parser")
-                sms_cards = sms_soup.find_all("div", class_="card-body")
 
-                for card in sms_cards:
-                    p = card.find("p", class_="mb-0")
-                    if not p:
+                num_soup    = BeautifulSoup(await num_resp.text(), "html.parser")
+                number_divs = num_soup.select("div[onclick*='getDetialsNumber']")
+
+                for ndiv in number_divs:
+                    phone = ndiv.text.strip()
+                    if not phone:
                         continue
-                    sms_text = p.get_text(separator="\n").strip()
-                    m2       = re.match(r"([a-zA-Z\s]+)", gid)
-                    country  = m2.group(1).strip() if m2 else gid.strip()
-                    service  = detect_service(sms_text)
-                    messages.append({
-                        "id":      f"{phone}|{sms_text[:80]}",
-                        "time":    datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
-                        "number":  phone,
-                        "country": country,
-                        "flag":    get_flag(country),
-                        "service": service,
-                        "emoji":   SERVICE_EMOJIS.get(service, "❓"),
-                        "code":    extract_code(sms_text),
-                        "sms":     sms_text,
-                    })
+
+                    sms_resp = await _context.request.post(
+                        SMS_DETAIL,
+                        form={
+                            "start": from_str, "end": to_str,
+                            "Number": phone, "Range": gid,
+                            "_token": token,
+                        },
+                    )
+                    if not sms_resp.ok:
+                        continue
+
+                    sms_soup  = BeautifulSoup(await sms_resp.text(), "html.parser")
+                    sms_cards = sms_soup.find_all("div", class_="card-body")
+
+                    for card in sms_cards:
+                        p = card.find("p", class_="mb-0")
+                        if not p:
+                            continue
+                        sms_text = p.get_text(separator="\n").strip()
+                        if not sms_text:
+                            continue
+
+                        m2      = re.match(r"([a-zA-Z\s]+)", gid)
+                        country = m2.group(1).strip() if m2 else gid.strip()
+                        service = detect_service(sms_text)
+
+                        messages.append({
+                            "id":      f"{phone}|{sms_text[:80]}",
+                            "time":    datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC"),
+                            "number":  phone,
+                            "country": country,
+                            "flag":    get_flag(country),
+                            "service": service,
+                            "emoji":   SERVICE_EMOJIS.get(service, "❓"),
+                            "code":    extract_code(sms_text),
+                            "sms":     sms_text,
+                        })
+            except Exception as e:
+                log.error("Error processing group %s: %s", gid, e)
+                continue
+
         return messages
 
     except Exception as e:
@@ -430,30 +477,35 @@ async def send_otp(bot, chat_id: str, msg: dict) -> None:
 
 
 async def poll_loop(bot) -> None:
-    global _fail_count
+    global _fail_count, _logged_in
 
-    logged_in = await do_login()
-    if not logged_in:
-        log.error("Initial login failed. Will retry in 60s.")
-        await asyncio.sleep(60)
-        logged_in = await do_login()
+    # Initial login with retries
+    for attempt in range(3):
+        if await do_login():
+            break
+        wait = 30 * (attempt + 1)
+        log.warning("Login attempt %d failed, retrying in %ds …", attempt + 1, wait)
+        await asyncio.sleep(wait)
+    else:
+        log.error("All login attempts failed. Will keep retrying every 5 minutes.")
 
     while True:
         try:
-            log.info("[%s] Polling SMS …", datetime.utcnow().strftime("%H:%M:%S"))
+            log.info("[%s] Polling …", datetime.utcnow().strftime("%H:%M:%S"))
 
-            if not logged_in or _fail_count >= 3:
-                logged_in = await do_login()
-                if not logged_in:
-                    backoff = min(60 * _fail_count, 300)
+            if not _logged_in or _fail_count >= 3:
+                log.info("Re-logging in …")
+                success = await do_login()
+                if not success:
+                    backoff = min(60 * max(_fail_count, 1), 300)
                     log.warning("Login failed, backing off %ds.", backoff)
                     await asyncio.sleep(backoff)
                     continue
-                _fail_count = 0
 
             messages = await fetch_sms()
+
             if not messages:
-                log.info("  No messages.")
+                log.info("  No messages found.")
             else:
                 seen      = load_seen()
                 chats     = load_chats()
@@ -467,7 +519,9 @@ async def poll_loop(bot) -> None:
                         await send_otp(bot, cid, msg)
                     mark_seen(msg["id"])
                 if new_count:
-                    log.info("  Sent %d new OTP(s).", new_count)
+                    log.info("  Dispatched %d new OTP(s).", new_count)
+                else:
+                    log.info("  All already seen.")
 
         except Exception as e:
             log.error("poll_loop error: %s", e)
@@ -481,10 +535,10 @@ async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if is_admin(uid):
         await update.message.reply_text(
             "Welcome Admin\\!\n\n"
-            "`/add_chat <id>` — Add chat\n"
-            "`/remove_chat <id>` — Remove chat\n"
-            "`/list_chats` — List chats\n"
-            "`/status` — Bot status",
+            "`/add_chat <id>` — Add a chat ID\n"
+            "`/remove_chat <id>` — Remove a chat ID\n"
+            "`/list_chats` — List all chats\n"
+            "`/status` — Live bot status",
             parse_mode="MarkdownV2",
             reply_markup=BUTTONS,
         )
@@ -501,7 +555,7 @@ async def add_chat_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cid   = context.args[0]
     chats = load_chats()
     if cid in chats:
-        return await update.message.reply_text(f"`{_esc(cid)}` already exists\\.", parse_mode="MarkdownV2")
+        return await update.message.reply_text(f"Already registered\\.", parse_mode="MarkdownV2")
     chats.append(cid)
     save_chats(chats)
     await update.message.reply_text(f"✅ Added `{_esc(cid)}`\\.", parse_mode="MarkdownV2")
@@ -514,7 +568,7 @@ async def remove_chat_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     cid   = context.args[0]
     chats = load_chats()
     if cid not in chats:
-        return await update.message.reply_text(f"`{_esc(cid)}` not found\\.", parse_mode="MarkdownV2")
+        return await update.message.reply_text(f"Not found\\.", parse_mode="MarkdownV2")
     chats.remove(cid)
     save_chats(chats)
     await update.message.reply_text(f"✅ Removed `{_esc(cid)}`\\.", parse_mode="MarkdownV2")
@@ -533,33 +587,38 @@ async def list_chats_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def status_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.message.from_user.id):
         return
-    browser_ok = "✅ Running" if _context else "❌ Not running"
-    session_ok = "✅ Active" if _csrf else "⚠️ No CSRF"
-    chats      = load_chats()
-    seen_count = len(load_seen())
+    chats = load_chats()
+    seen  = load_seen()
     await update.message.reply_text(
         f"*Bot Status*\n\n"
-        f"Browser: {browser_ok}\n"
-        f"Session: {session_ok}\n"
+        f"Browser: {'✅' if _context else '❌'}\n"
+        f"Logged in: {'✅' if _logged_in else '❌'}\n"
+        f"CSRF: {'✅' if _csrf else '❌'}\n"
+        f"Fail count: {_fail_count}\n"
         f"Chats: {len(chats)}\n"
-        f"Seen IDs: {seen_count}\n"
-        f"Fail count: {_fail_count}",
-        parse_mode="Markdown",
+        f"Seen IDs: {len(seen)}\n"
+        f"Email: `{_esc(IVAS_EMAIL)}`",
+        parse_mode="MarkdownV2",
     )
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     err = context.error
     if isinstance(err, Conflict):
-        log.warning("Telegram Conflict (double instance) — waiting 30s for old instance to die …")
+        log.warning("Telegram Conflict — old instance still alive, waiting 30s …")
         await asyncio.sleep(30)
     elif isinstance(err, (TimedOut, NetworkError)):
-        log.warning("Telegram network error: %s", err)
+        log.warning("Telegram network hiccup: %s", err)
     else:
-        log.error("Unhandled Telegram error: %s", err)
+        log.error("Telegram error: %s", err)
 
 
 async def _main():
-    log.info("iVAS SMS Bot v4 starting …")
+    log.info("=" * 50)
+    log.info("iVAS SMS Bot starting …")
+    log.info("Email : %s", IVAS_EMAIL)
+    log.info("Admin : %s", ADMIN_IDS)
+    log.info("Chats : %s", load_chats())
+    log.info("=" * 50)
 
     await _launch_browser()
 
@@ -586,7 +645,7 @@ async def _main():
             drop_pending_updates=True,
             allowed_updates=["message"],
         )
-        log.info("Bot online. Polling every %ds.", POLL_SECS)
+        log.info("Bot online. Polling SMS every %ds.", POLL_SECS)
         try:
             await poll_loop(app.bot)
         finally:
