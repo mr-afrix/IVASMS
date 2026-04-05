@@ -23,7 +23,7 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 # ── Credentials ── env vars override, hardcoded values are the fallback
-BOT_TOKEN     = os.environ.get("BOT_TOKEN",      "8724296336:AAEJHu1BSrF91rdrECfOva09eQBs1fpgwfo")
+BOT_TOKEN     = os.environ.get("BOT_TOKEN",      "8678706957:AAFhh-j91XA7_fcu_Be6SE6REkyisDHVXAA")
 IVAS_EMAIL    = os.environ.get("IVAS_EMAIL",      "tawandamahachi07@gmail.com")
 IVAS_PASSWORD = os.environ.get("IVAS_PASSWORD",   "mahachi2007")
 ADMIN_IDS     = [os.environ.get("ADMIN_ID",       "8339856952")]
