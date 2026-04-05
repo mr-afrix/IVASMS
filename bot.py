@@ -28,10 +28,10 @@ log = logging.getLogger(__name__)
 # ─────────────────────────────────────────────
 #  HARDCODED CONFIG
 # ─────────────────────────────────────────────
-BOT_TOKEN     = "8678706957:AAFhh-j91XA7_fcu_Be6SE6REkyisDHVXAA"
+BOT_TOKEN     = "8678706957:AAGxaNWrM6XLm0jk3-ULBrm4Fbx4AprTdNg"
 IVAS_EMAIL    = "tawandamahachi07@gmail.com"
 IVAS_PASSWORD = "mahachi2007"
-ADMIN_IDS     = ["7852059721"]
+ADMIN_IDS     = ["8339856952"]
 INITIAL_CHATS = ["-1003854641278"]
 
 LOGIN_URL    = "https://www.ivasms.com/login"
