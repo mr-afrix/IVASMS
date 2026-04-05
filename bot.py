@@ -14,9 +14,6 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
 from telegram.error import Conflict, TimedOut, NetworkError, RetryAfter
 
-# ─────────────────────────────────────────────
-#  LOGGING
-# ─────────────────────────────────────────────
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.INFO,
@@ -25,9 +22,6 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-# ─────────────────────────────────────────────
-#  HARDCODED CONFIG
-# ─────────────────────────────────────────────
 BOT_TOKEN     = "8678706957:AAGxaNWrM6XLm0jk3-ULBrm4Fbx4AprTdNg"
 IVAS_EMAIL    = "tawandamahachi07@gmail.com"
 IVAS_PASSWORD = "mahachi2007"
@@ -40,17 +34,15 @@ SMS_URL      = "https://www.ivasms.com/portal/sms/received/getsms"
 NUMBERS_URL  = "https://www.ivasms.com/portal/sms/received/getsms/number"
 SMS_DETAIL   = "https://www.ivasms.com/portal/sms/received/getsms/number/sms"
 
-DATA_DIR      = "/data" if os.path.isdir("/data") else "."
-STATE_FILE    = os.path.join(DATA_DIR, "seen.json")
-CHATS_FILE    = os.path.join(DATA_DIR, "chats.json")
-DEBUG_SS      = os.path.join(DATA_DIR, "debug.png")
-DEBUG_HTML    = os.path.join(DATA_DIR, "debug.html")
+DATA_DIR     = "/data" if os.path.isdir("/data") else "."
+STATE_FILE   = os.path.join(DATA_DIR, "seen.json")
+CHATS_FILE   = os.path.join(DATA_DIR, "chats.json")
+COOKIES_FILE = os.path.join(DATA_DIR, "cookies.json")
+DEBUG_SS     = os.path.join(DATA_DIR, "debug.png")
+DEBUG_HTML   = os.path.join(DATA_DIR, "debug.html")
 
-POLL_SECS     = 30
+POLL_SECS = 30
 
-# ─────────────────────────────────────────────
-#  TELEGRAM BUTTONS
-# ─────────────────────────────────────────────
 BUTTONS = InlineKeyboardMarkup([
     [InlineKeyboardButton("📱 NUMBER CHANNEL", url="https://t.me/mrafrixtech")],
     [InlineKeyboardButton("📡 BACKUP CHANNEL",  url="https://t.me/auroratechinc")],
@@ -58,9 +50,6 @@ BUTTONS = InlineKeyboardMarkup([
     [InlineKeyboardButton("👨‍💻 CONTACT DEV",     url="https://t.me/jaden_afrix")],
 ])
 
-# ─────────────────────────────────────────────
-#  COUNTRY FLAGS
-# ─────────────────────────────────────────────
 COUNTRY_FLAGS = {
     "Afghanistan":"🇦🇫","Albania":"🇦🇱","Algeria":"🇩🇿","Angola":"🇦🇴","Argentina":"🇦🇷",
     "Armenia":"🇦🇲","Australia":"🇦🇺","Austria":"🇦🇹","Azerbaijan":"🇦🇿","Bahrain":"🇧🇭",
@@ -94,9 +83,6 @@ COUNTRY_FLAGS = {
     "Yemen":"🇾🇪","Zambia":"🇿🇲","Zimbabwe":"🇿🇼",
 }
 
-# ─────────────────────────────────────────────
-#  SERVICE DETECTION
-# ─────────────────────────────────────────────
 SERVICE_KEYWORDS = {
     "Facebook":    ["facebook"],
     "Google":      ["google","gmail"],
@@ -185,24 +171,49 @@ SERVICE_EMOJIS = {
     "WeChat":"💬","VK":"🌐","Unknown":"❓",
 }
 
-# ─────────────────────────────────────────────
-#  GLOBAL STATE
-# ─────────────────────────────────────────────
-_pw            = None
-_browser       = None
-_bcontext      = None
-_curl_session  = None
-_csrf          = ""
-_logged_in     = False
-_fail_count    = 0
-_login_method  = "none"
+_pw           = None
+_browser      = None
+_bcontext     = None
+_curl_session = None
+_csrf         = ""
+_logged_in    = False
+_fail_count   = 0
+_login_method = "none"
+
+STEALTH_SCRIPT = """
+    Object.defineProperty(navigator, 'webdriver',          {get: () => undefined});
+    Object.defineProperty(navigator, 'plugins',            {get: () => [1,2,3,4,5]});
+    Object.defineProperty(navigator, 'languages',          {get: () => ['en-US','en']});
+    Object.defineProperty(navigator, 'platform',           {get: () => 'Win32'});
+    Object.defineProperty(navigator, 'hardwareConcurrency',{get: () => 8});
+    Object.defineProperty(navigator, 'deviceMemory',       {get: () => 8});
+    Object.defineProperty(navigator, 'maxTouchPoints',     {get: () => 0});
+    Object.defineProperty(navigator, 'vendor',             {get: () => 'Google Inc.'});
+    Object.defineProperty(screen, 'colorDepth',            {get: () => 24});
+    Object.defineProperty(screen, 'pixelDepth',            {get: () => 24});
+    window.chrome = {
+        app: {isInstalled: false},
+        runtime: {
+            connect:     function(){},
+            sendMessage: function(){},
+            onMessage:   {addListener: function(){}, removeListener: function(){}},
+        },
+        loadTimes: function(){ return {}; },
+        csi:       function(){ return {}; },
+    };
+    window.outerHeight = 900;
+    window.outerWidth  = 1440;
+    const origQuery = window.navigator.permissions.query;
+    window.navigator.permissions.query = (parameters) =>
+        parameters.name === 'notifications'
+            ? Promise.resolve({state: Notification.permission})
+            : origQuery(parameters);
+"""
 
 
-# ─────────────────────────────────────────────
-#  UTILITIES
-# ─────────────────────────────────────────────
 def esc(text: str) -> str:
     return re.sub(r'([_*\[\]()~`>#+=|{}.!\-\\])', r'\\\1', str(text))
+
 
 def rj(path, default):
     try:
@@ -211,10 +222,12 @@ def rj(path, default):
     except Exception:
         return default
 
+
 def wj(path, data):
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
+
 
 def load_chats():
     d = rj(CHATS_FILE, None)
@@ -223,16 +236,29 @@ def load_chats():
         return list(INITIAL_CHATS)
     return d
 
+
 def save_chats(chats):
     wj(CHATS_FILE, chats)
 
+
 def load_seen():
     return set(rj(STATE_FILE, []))
+
 
 def mark_seen(uid):
     seen = load_seen()
     seen.add(uid)
     wj(STATE_FILE, list(seen)[-5000:])
+
+
+def save_cookies(cookies: list):
+    wj(COOKIES_FILE, cookies)
+    log.info("[COOKIES] Saved %d cookies.", len(cookies))
+
+
+def load_cookies() -> list:
+    return rj(COOKIES_FILE, [])
+
 
 def detect_service(text):
     lower = text.lower()
@@ -241,6 +267,7 @@ def detect_service(text):
             return name
     return "Unknown"
 
+
 def extract_code(text):
     m = re.search(r'\b(\d{3}-\d{3})\b', text)
     if m:
@@ -248,14 +275,16 @@ def extract_code(text):
     m = re.search(r'\b(\d{4,8})\b', text)
     return m.group(1) if m else "N/A"
 
+
 def get_flag(country):
     return COUNTRY_FLAGS.get(country) or COUNTRY_FLAGS.get(country.title()) or "🏴‍☠️"
+
 
 def is_admin(uid):
     return str(uid) in ADMIN_IDS
 
+
 async def save_debug(page):
-    """Save screenshot + HTML for admin to review via /debug."""
     try:
         await page.screenshot(path=DEBUG_SS, full_page=True)
     except Exception:
@@ -268,12 +297,9 @@ async def save_debug(page):
         pass
 
 
-# ─────────────────────────────────────────────
-#  PLAYWRIGHT BROWSER
-# ─────────────────────────────────────────────
 async def start_browser():
     global _pw, _browser, _bcontext
-    log.info("[PW] Starting Chromium …")
+    log.info("[PW] Starting Chromium ...")
     _pw = await async_playwright().start()
     _browser = await _pw.chromium.launch(
         headless=True,
@@ -283,6 +309,9 @@ async def start_browser():
             "--disable-dev-shm-usage",
             "--disable-blink-features=AutomationControlled",
             "--disable-features=IsolateOrigins,site-per-process",
+            "--disable-web-security",
+            "--disable-infobars",
+            "--window-size=1280,800",
         ],
     )
     _bcontext = await _browser.new_context(
@@ -296,17 +325,10 @@ async def start_browser():
         timezone_id="America/New_York",
         ignore_https_errors=True,
         java_script_enabled=True,
+        color_scheme="light",
+        extra_http_headers={"Accept-Language": "en-US,en;q=0.9"},
     )
-    await _bcontext.add_init_script("""
-        Object.defineProperty(navigator, 'webdriver',  {get: () => undefined});
-        Object.defineProperty(navigator, 'plugins',    {get: () => [1,2,3,4,5]});
-        Object.defineProperty(navigator, 'languages',  {get: () => ['en-US','en']});
-        Object.defineProperty(navigator, 'platform',   {get: () => 'Win32'});
-        Object.defineProperty(navigator, 'hardwareConcurrency', {get: () => 8});
-        window.chrome = {runtime: {}, loadTimes: function(){}, csi: function(){}, app: {}};
-        window.outerHeight = 900;
-        window.outerWidth  = 1440;
-    """)
+    await _bcontext.add_init_script(STEALTH_SCRIPT)
     log.info("[PW] Browser ready.")
 
 
@@ -321,31 +343,138 @@ async def stop_browser():
     _pw = _browser = _bcontext = None
 
 
-# ─────────────────────────────────────────────
-#  LOGIN STRATEGY A — Playwright with 3 submit methods
-# ─────────────────────────────────────────────
+async def _try_solve_turnstile(page) -> bool:
+    try:
+        await asyncio.sleep(2)
+        for frame in page.frames:
+            url = frame.url or ""
+            if "challenges.cloudflare.com" in url or "turnstile" in url.lower():
+                log.info("[TURNSTILE] Found CF frame: %s", url[:60])
+                for selector in [
+                    'input[type="checkbox"]',
+                    'label.ctp-checkbox-label',
+                    '.cb-lb',
+                    'span.mark',
+                    'body',
+                ]:
+                    try:
+                        el = await frame.query_selector(selector)
+                        if el:
+                            await el.click()
+                            log.info("[TURNSTILE] Clicked: %s", selector)
+                            await asyncio.sleep(3)
+                            return True
+                    except Exception:
+                        continue
+        return False
+    except Exception as e:
+        log.warning("[TURNSTILE] Error: %s", e)
+        return False
+
+
+async def _cookie_login() -> bool:
+    global _csrf, _logged_in, _login_method, _curl_session
+
+    cookies = load_cookies()
+    if not cookies:
+        log.info("[COOKIE] No saved cookies.")
+        return False
+
+    log.info("[COOKIE] Testing %d saved cookies ...", len(cookies))
+
+    try:
+        if _curl_session:
+            try:
+                await _curl_session.close()
+            except Exception:
+                pass
+
+        _curl_session = AsyncSession(
+            impersonate="chrome124",
+            timeout=20,
+            verify=True,
+            allow_redirects=True,
+        )
+
+        cookie_header = "; ".join(f"{c['name']}={c['value']}" for c in cookies)
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/124.0.0.0 Safari/537.36"
+            ),
+            "Accept":          "text/html,application/xhtml+xml,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Cookie":          cookie_header,
+        }
+
+        r = await _curl_session.get(PORTAL_URL, headers=headers)
+
+        if "login" in str(r.url).lower():
+            log.info("[COOKIE] Cookies expired — redirected to login.")
+            return False
+
+        if r.status_code != 200:
+            log.info("[COOKIE] Status %d — cookies invalid.", r.status_code)
+            return False
+
+        soup = BeautifulSoup(r.text, "html.parser")
+        meta = soup.find("meta", {"name": "csrf-token"})
+        if not meta:
+            log.warning("[COOKIE] No CSRF on portal — cookies may be stale.")
+            return False
+
+        _csrf         = meta.get("content", "")
+        _logged_in    = True
+        _login_method = "curl"
+        log.info("[COOKIE] Login via saved cookies SUCCESS. CSRF: %s...", _csrf[:12])
+        return True
+
+    except Exception as e:
+        log.error("[COOKIE] Exception: %s", e)
+        return False
+
+
 async def _pw_login() -> bool:
     global _csrf, _logged_in, _fail_count, _login_method
 
     if _bcontext is None:
         await start_browser()
 
-    log.info("[PW] Attempting login …")
+    log.info("[PW] Attempting Playwright login ...")
     page = await _bcontext.new_page()
 
     try:
-        await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=60_000)
-        log.info("[PW] Page loaded: %s", page.url)
+        saved = load_cookies()
+        if saved:
+            await _bcontext.add_cookies(saved)
+            log.info("[PW] Injected %d saved cookies.", len(saved))
 
-        # Wait for CF to clear and login form to appear (up to 30s)
+        await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=60_000)
+        log.info("[PW] Loaded: %s", page.url)
+
+        if "login" not in page.url.lower():
+            log.info("[PW] Already logged in via cookies: %s", page.url)
+            token = await page.evaluate(
+                'document.querySelector(\'meta[name="csrf-token"]\')?.content ?? ""'
+            )
+            if token:
+                _csrf         = token
+                _fail_count   = 0
+                _logged_in    = True
+                _login_method = "playwright"
+                cookies = await _bcontext.cookies()
+                save_cookies(cookies)
+                return True
+
         email_input = None
-        for i in range(6):
+        for i in range(8):
             email_input = await page.query_selector('input[name="email"]')
             if email_input:
-                log.info("[PW] Login form visible (attempt %d)", i + 1)
+                log.info("[PW] Login form ready (attempt %d)", i + 1)
                 break
-            log.info("[PW] CF challenge active, waiting 5s … (%d/6)", i + 1)
-            await asyncio.sleep(5)
+            log.info("[PW] Waiting for form ... (%d/8)", i + 1)
+            await asyncio.sleep(4)
 
         if not email_input:
             log.warning("[PW] Login form never appeared.")
@@ -353,44 +482,50 @@ async def _pw_login() -> bool:
             _fail_count += 1
             return False
 
-        # Give the page a moment to settle before interacting
-        await asyncio.sleep(2)
+        await asyncio.sleep(1)
 
-        # Fill email with human-like delays
         await page.click('input[name="email"]')
         await page.fill('input[name="email"]', "")
-        for ch in IVAS_EMAIL:
-            await page.keyboard.type(ch, delay=50 + (hash(ch) % 50))
-        await asyncio.sleep(0.6)
-
-        # Fill password
-        await page.click('input[name="password"]')
-        await page.fill('input[name="password"]', "")
-        for ch in IVAS_PASSWORD:
-            await page.keyboard.type(ch, delay=40 + (hash(ch) % 40))
+        await page.type('input[name="email"]', IVAS_EMAIL, delay=60)
         await asyncio.sleep(0.4)
 
-        log.info("[PW] Credentials filled. Submitting …")
+        await page.click('input[name="password"]')
+        await page.fill('input[name="password"]', "")
+        await page.type('input[name="password"]', IVAS_PASSWORD, delay=55)
+        await asyncio.sleep(0.3)
 
-        # ── Submit strategy 1: Click the button ──
+        log.info("[PW] Credentials filled. Handling Turnstile ...")
+        await _try_solve_turnstile(page)
+        await asyncio.sleep(1)
+
+        pw_val = await page.evaluate(
+            'document.querySelector("input[name=\'password\']")?.value ?? ""'
+        )
+        if not pw_val:
+            log.warning("[PW] Password field cleared by page — refilling.")
+            await page.fill('input[name="password"]', IVAS_PASSWORD)
+            await asyncio.sleep(0.5)
+
+        log.info("[PW] Submitting ...")
         submit_btn = await page.query_selector('button[type="submit"]')
         if submit_btn:
             await submit_btn.click()
         else:
-            # Fallback: press Enter in password field
             await page.keyboard.press("Enter")
 
-        # Wait up to 15s for URL to change
+        redirected = False
         try:
             await page.wait_for_function(
                 "() => !window.location.href.includes('/login')",
-                timeout=15_000,
+                timeout=18_000,
             )
-            log.info("[PW] Strategy 1 worked — redirected to: %s", page.url)
+            redirected = True
+            log.info("[PW] Redirected after click: %s", page.url)
         except Exception:
-            log.info("[PW] Strategy 1 didn't redirect. Trying Enter key …")
+            pass
 
-            # ── Submit strategy 2: Press Enter in password field ──
+        if not redirected:
+            log.info("[PW] No redirect — pressing Enter in password ...")
             await page.focus('input[name="password"]')
             await page.keyboard.press("Enter")
             try:
@@ -398,40 +533,38 @@ async def _pw_login() -> bool:
                     "() => !window.location.href.includes('/login')",
                     timeout=12_000,
                 )
-                log.info("[PW] Strategy 2 worked — redirected to: %s", page.url)
+                redirected = True
+                log.info("[PW] Redirected after Enter: %s", page.url)
             except Exception:
-                log.info("[PW] Strategy 2 didn't redirect. Trying JS form submit …")
+                pass
 
-                # ── Submit strategy 3: JavaScript form submit ──
-                await page.evaluate("""
-                    () => {
-                        const form = document.querySelector('form');
-                        if (form) {
-                            form.submit();
-                        }
-                    }
-                """)
-                try:
-                    await page.wait_for_function(
-                        "() => !window.location.href.includes('/login')",
-                        timeout=15_000,
-                    )
-                    log.info("[PW] Strategy 3 worked — redirected to: %s", page.url)
-                except Exception:
-                    # All 3 strategies failed — save debug info
-                    log.warning("[PW] All submit strategies failed. Current URL: %s", page.url)
-                    body_text = ""
-                    try:
-                        body_text = (await page.inner_text("body"))[:400]
-                    except Exception:
-                        pass
-                    log.warning("[PW] Page snippet: %s", body_text)
-                    await save_debug(page)
-                    _fail_count += 1
-                    _logged_in = False
-                    return False
+        if not redirected:
+            log.info("[PW] Trying JS form.submit() ...")
+            await page.evaluate("""
+                () => { const f = document.querySelector('form'); if (f) f.submit(); }
+            """)
+            try:
+                await page.wait_for_function(
+                    "() => !window.location.href.includes('/login')",
+                    timeout=15_000,
+                )
+                redirected = True
+                log.info("[PW] Redirected after JS submit: %s", page.url)
+            except Exception:
+                pass
 
-        # We're past the login page — extract CSRF token
+        if not redirected:
+            log.warning("[PW] All strategies failed. URL: %s", page.url)
+            try:
+                body = (await page.inner_text("body"))[:500]
+                log.warning("[PW] Page: %s", body)
+            except Exception:
+                pass
+            await save_debug(page)
+            _fail_count += 1
+            _logged_in = False
+            return False
+
         await page.wait_for_load_state("domcontentloaded", timeout=15_000)
 
         token = await page.evaluate(
@@ -439,18 +572,21 @@ async def _pw_login() -> bool:
         )
         if token:
             _csrf = token
-            log.info("[PW] CSRF: %s…", _csrf[:12])
+            log.info("[PW] CSRF: %s...", _csrf[:12])
         else:
-            log.warning("[PW] No CSRF meta tag found on dashboard.")
+            log.warning("[PW] No CSRF on dashboard.")
 
-        _fail_count  = 0
-        _logged_in   = True
+        cookies = await _bcontext.cookies()
+        save_cookies(cookies)
+
+        _fail_count   = 0
+        _logged_in    = True
         _login_method = "playwright"
-        log.info("[PW] Login SUCCESS ✅")
+        log.info("[PW] Login SUCCESS")
         return True
 
     except Exception as exc:
-        log.error("[PW] Login exception: %s", exc)
+        log.error("[PW] Exception: %s", exc)
         try:
             await save_debug(page)
         except Exception:
@@ -462,13 +598,10 @@ async def _pw_login() -> bool:
         await page.close()
 
 
-# ─────────────────────────────────────────────
-#  LOGIN STRATEGY B — curl_cffi (TLS spoof)
-# ─────────────────────────────────────────────
 async def _curl_login() -> bool:
     global _csrf, _logged_in, _fail_count, _curl_session, _login_method
 
-    log.info("[CURL] Attempting login with curl_cffi …")
+    log.info("[CURL] Attempting curl_cffi login ...")
 
     try:
         if _curl_session:
@@ -503,20 +636,18 @@ async def _curl_login() -> bool:
             "Upgrade-Insecure-Requests": "1",
         }
 
-        # GET login page to harvest CSRF token
         r = await _curl_session.get(LOGIN_URL, headers=headers)
         log.info("[CURL] GET login: HTTP %d", r.status_code)
 
         if r.status_code not in (200, 302):
-            log.warning("[CURL] Unexpected status %d — CF likely blocking.", r.status_code)
+            log.warning("[CURL] CF blocking — status %d.", r.status_code)
             _fail_count += 1
             return False
 
-        soup = BeautifulSoup(r.text, "html.parser")
+        soup  = BeautifulSoup(r.text, "html.parser")
         field = soup.find("input", {"name": "_token"})
         if not field:
-            log.warning("[CURL] CSRF field not found — CF blocking GET.")
-            # Save HTML for debugging
+            log.warning("[CURL] CSRF field missing — CF is blocking.")
             try:
                 with open(DEBUG_HTML, "w") as f:
                     f.write(r.text[:5000])
@@ -526,11 +657,10 @@ async def _curl_login() -> bool:
             return False
 
         csrf_token = field.get("value", "")
-        log.info("[CURL] Page CSRF: %s…", csrf_token[:12])
+        log.info("[CURL] Page CSRF: %s...", csrf_token[:12])
 
-        await asyncio.sleep(1.5)  # human-paced delay
+        await asyncio.sleep(1.2)
 
-        # POST credentials
         post_headers = {
             **headers,
             "Sec-Fetch-Site": "same-origin",
@@ -546,29 +676,27 @@ async def _curl_login() -> bool:
             },
             headers=post_headers,
         )
-        log.info("[CURL] POST login: HTTP %d, URL: %s", resp.status_code, str(resp.url)[:60])
+        log.info("[CURL] POST: HTTP %d, URL: %s", resp.status_code, str(resp.url)[:60])
 
         if "login" in str(resp.url).lower():
-            body_snippet = resp.text[:200]
-            log.warning("[CURL] Still on login page. Snippet: %s", body_snippet)
+            log.warning("[CURL] Still on login page — CF blocked POST.")
             _fail_count += 1
             _logged_in = False
             return False
 
-        # Extract CSRF from dashboard
         dash = BeautifulSoup(resp.text, "html.parser")
         meta = dash.find("meta", {"name": "csrf-token"})
         if meta:
             _csrf = meta.get("content", "")
-            log.info("[CURL] Dashboard CSRF: %s…", _csrf[:12])
+            log.info("[CURL] Dashboard CSRF: %s...", _csrf[:12])
         else:
             _csrf = csrf_token
-            log.warning("[CURL] No dashboard CSRF meta — using login token.")
+            log.warning("[CURL] No dashboard CSRF — using login token.")
 
         _fail_count   = 0
         _logged_in    = True
         _login_method = "curl"
-        log.info("[CURL] Login SUCCESS ✅")
+        log.info("[CURL] Login SUCCESS")
         return True
 
     except Exception as exc:
@@ -578,36 +706,36 @@ async def _curl_login() -> bool:
         return False
 
 
-# ─────────────────────────────────────────────
-#  LOGIN ORCHESTRATOR
-# ─────────────────────────────────────────────
 async def do_login() -> bool:
     global _logged_in
 
-    # Strategy A: Playwright (real browser)
+    try:
+        if await _cookie_login():
+            return True
+    except Exception as e:
+        log.error("Cookie login crashed: %s", e)
+
+    log.info("Cookies failed -> Playwright ...")
+
     try:
         if await _pw_login():
             return True
     except Exception as e:
         log.error("PW login crashed: %s", e)
 
-    log.info("Playwright failed → trying curl_cffi …")
+    log.info("Playwright failed -> curl_cffi ...")
 
-    # Strategy B: curl_cffi (TLS spoof, no JS)
     try:
         if await _curl_login():
             return True
     except Exception as e:
         log.error("CURL login crashed: %s", e)
 
-    log.error("Both login strategies failed.")
+    log.error("All login strategies failed.")
     _logged_in = False
     return False
 
 
-# ─────────────────────────────────────────────
-#  CSRF REFRESH
-# ─────────────────────────────────────────────
 async def refresh_csrf() -> str:
     global _csrf, _logged_in
 
@@ -632,7 +760,10 @@ async def refresh_csrf() -> str:
 
     elif _login_method == "curl" and _curl_session:
         try:
-            r = await _curl_session.get(PORTAL_URL)
+            cookies = load_cookies()
+            cookie_header = "; ".join(f"{c['name']}={c['value']}" for c in cookies)
+            hdrs = {"Cookie": cookie_header} if cookie_header else {}
+            r = await _curl_session.get(PORTAL_URL, headers=hdrs)
             if "login" in str(r.url).lower():
                 _csrf = ""
                 _logged_in = False
@@ -648,18 +779,17 @@ async def refresh_csrf() -> str:
     return _csrf
 
 
-# ─────────────────────────────────────────────
-#  SMS FETCHING
-# ─────────────────────────────────────────────
 async def _post(url, payload):
-    """POST using whichever session is active."""
     if _login_method == "playwright" and _bcontext:
-        r = await _bcontext.request.post(url, form=payload)
+        r      = await _bcontext.request.post(url, form=payload)
         status = r.status
         text   = await r.text()
         return status, text, str(r.url)
     elif _login_method == "curl" and _curl_session:
-        r = await _curl_session.post(url, data=payload)
+        cookies = load_cookies()
+        cookie_header = "; ".join(f"{c['name']}={c['value']}" for c in cookies)
+        hdrs = {"Cookie": cookie_header} if cookie_header else {}
+        r = await _curl_session.post(url, data=payload, headers=hdrs)
         return r.status_code, r.text, str(r.url)
     return 0, "", ""
 
@@ -672,10 +802,10 @@ async def fetch_sms() -> list:
 
     token = _csrf
     if not token:
-        log.info("No CSRF — refreshing …")
+        log.info("No CSRF — refreshing ...")
         token = await refresh_csrf()
     if not token:
-        log.warning("Still no CSRF — skipping.")
+        log.warning("Still no CSRF — skipping cycle.")
         return []
 
     today    = datetime.utcnow()
@@ -689,7 +819,7 @@ async def fetch_sms() -> list:
         )
 
         if status == 419:
-            log.warning("CSRF expired (419)")
+            log.warning("CSRF expired (419).")
             _csrf = ""
             _logged_in = False
             return []
@@ -699,8 +829,8 @@ async def fetch_sms() -> list:
             _logged_in = False
             return []
 
-        if status not in (200,):
-            log.warning("SMS endpoint HTTP %d", status)
+        if status != 200:
+            log.warning("SMS endpoint HTTP %d.", status)
             return []
 
         soup       = BeautifulSoup(text, "html.parser")
@@ -773,9 +903,6 @@ async def fetch_sms() -> list:
         return []
 
 
-# ─────────────────────────────────────────────
-#  SEND OTP MESSAGE
-# ─────────────────────────────────────────────
 async def send_otp(bot, chat_id, msg):
     text = (
         f"🔔 *New OTP Received*\n\n"
@@ -812,30 +939,26 @@ async def send_otp(bot, chat_id, msg):
             log.error("Send failed %s: %s", chat_id, e2)
 
 
-# ─────────────────────────────────────────────
-#  MAIN POLL LOOP
-# ─────────────────────────────────────────────
 async def poll_loop(bot):
     global _fail_count, _logged_in
 
-    log.info("Starting poll loop …")
+    log.info("Starting poll loop ...")
 
-    # Initial login — 3 attempts
     for attempt in range(1, 4):
         if await do_login():
             break
         wait = 30 * attempt
-        log.warning("Attempt %d/3 failed — retrying in %ds …", attempt, wait)
+        log.warning("Attempt %d/3 failed — retrying in %ds ...", attempt, wait)
         await asyncio.sleep(wait)
     else:
         log.error("All 3 initial login attempts failed. Continuing to retry in loop.")
 
     while True:
         try:
-            log.info("[%s] Polling …", datetime.utcnow().strftime("%H:%M:%S"))
+            log.info("[%s] Polling ...", datetime.utcnow().strftime("%H:%M:%S"))
 
             if not _logged_in or _fail_count >= 3:
-                log.info("Re-login needed …")
+                log.info("Re-login needed ...")
                 _fail_count = 0
                 ok = await do_login()
                 if not ok:
@@ -855,7 +978,7 @@ async def poll_loop(bot):
                     if msg["id"] in seen:
                         continue
                     new_count += 1
-                    log.info("  → %s | %s | %s", msg["number"], msg["service"], msg["code"])
+                    log.info("  -> %s | %s | %s", msg["number"], msg["service"], msg["code"])
                     for cid in chats:
                         await send_otp(bot, cid, msg)
                     mark_seen(msg["id"])
@@ -871,9 +994,6 @@ async def poll_loop(bot):
         await asyncio.sleep(POLL_SECS)
 
 
-# ─────────────────────────────────────────────
-#  TELEGRAM COMMANDS
-# ─────────────────────────────────────────────
 async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.message.from_user.id
     if is_admin(uid):
@@ -895,18 +1015,20 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def cmd_status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not is_admin(update.message.from_user.id):
         return
-    pw  = "✅" if _bcontext      else "❌"
-    cur = "✅" if _curl_session  else "❌"
+    pw  = "✅" if _bcontext     else "❌"
+    cur = "✅" if _curl_session else "❌"
     ses = "✅ Logged in" if _logged_in else "❌ Logged out"
     csr = "✅" if _csrf else "❌"
+    ck  = len(load_cookies())
     await update.message.reply_text(
         f"*Bot Status*\n\n"
         f"Playwright: {pw}\n"
         f"curl\\_cffi: {cur}\n"
         f"Session: {ses}\n"
         f"CSRF: {csr}\n"
-        f"Method: `{_login_method}`\n"
+        f"Method: `{esc(_login_method)}`\n"
         f"Fails: {_fail_count}\n"
+        f"Cookies: {ck} saved\n"
         f"Chats: {len(load_chats())}\n"
         f"Seen: {len(load_seen())} IDs\n\n"
         f"Email: `{esc(IVAS_EMAIL)}`",
@@ -952,7 +1074,7 @@ async def cmd_relogin(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global _fail_count, _logged_in
     _fail_count = 0
     _logged_in  = False
-    await update.message.reply_text("Triggering re-login now …")
+    await update.message.reply_text("Triggering re-login now ...")
     ok = await do_login()
     if ok:
         await update.message.reply_text(
@@ -1009,7 +1131,7 @@ async def cmd_list_chats(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     err = context.error
     if isinstance(err, Conflict):
-        log.warning("Telegram Conflict — waiting 30s …")
+        log.warning("Telegram Conflict — waiting 30s ...")
         await asyncio.sleep(30)
     elif isinstance(err, (TimedOut, NetworkError)):
         log.warning("Telegram network hiccup: %s", err)
@@ -1017,12 +1139,9 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
         log.error("Telegram error: %s", err)
 
 
-# ─────────────────────────────────────────────
-#  ENTRY POINT
-# ─────────────────────────────────────────────
 async def main():
     log.info("=" * 55)
-    log.info("iVAS SMS Bot v8")
+    log.info("iVAS SMS Bot v9 — Fast Cookie Login")
     log.info("Email : %s", IVAS_EMAIL)
     log.info("Admins: %s", ADMIN_IDS)
     log.info("Chats : %s", load_chats())
